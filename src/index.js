@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 
 class UserList extends Component {
   constructor(props) {
@@ -24,13 +25,17 @@ class UserList extends Component {
         {this.state.users.map(user => {
           return (
             <div key={user.id}>
-              <div>{user.login}</div>
+              <Link to={`/users/${user.login}`}>{user.login}</Link>
               <img src={user.avatar_url} alt={user.login} />
             </div>
           );
         })}
       </div>
     );
+  }
+
+  componentWillUnmount() {
+    console.log("Destroy");
   }
 }
 
@@ -43,9 +48,9 @@ class UserDetails extends Component {
   }
 
   componentDidMount() {
+    console.log(this.props.match.params.id);
     axios
-      // .get("https://api.github.com/users/" + this.props.match.params.id)
-      .get("https://api.github.com/users/" + this.props.id)
+      .get("https://api.github.com/users/" + this.props.match.params.id)
       .then(({ data }) => {
         this.setState({
           user: data,
@@ -70,5 +75,13 @@ class UserDetails extends Component {
   }
 }
 
-// ReactDOM.render(<UserList name="Kerwin" />, document.getElementById("root"));
-ReactDOM.render(<UserDetails id="mojombo" />, document.getElementById("root"));
+const route = (
+  <Router>
+    <Switch>
+      <Route exact path="/users" component={UserList} />
+      <Route path="/users/:id" component={UserDetails} />
+    </Switch>
+  </Router>
+);
+
+ReactDOM.render(route, document.getElementById("root"));
